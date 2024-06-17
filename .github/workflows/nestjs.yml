@@ -1,28 +1,35 @@
-name: NestJS CI/CD
+name: CI/CD Pipeline
 
 on:
   push:
     branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
-  build-and-deploy:
+  build-and-test:
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v2
     - name: Use Node.js
       uses: actions/setup-node@v1
       with:
-        node-version: '18.19.1' # or another version if needed
+        node-version: '14'
     - name: Install dependencies
       run: npm install
-    - name: Build
-      run: npm run build
-    - name: Set up SSH key
-      run: |
-        mkdir -p ~/.ssh
-        echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_rsa
-        chmod 600 ~/.ssh/id_rsa
-        ssh-keyscan -H '172.31.45.239' >> ~/.ssh/known_hosts
+    - name: Run tests
+      run: npm test
+  deploy:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
     - name: Deploy to EC2
-      run: ssh -i ~/.ssh/id_rsa ${{ secrets.EC2_USER }}@172.31.45.239 'bash -s' < ../scripts/deploy_njsp.sh
+      run: |
+        scp -r ./nest-hello-world ec2-user@98.130.36.134:/home/ubuntu/nest-hello-world
+
+        ssh ec2-user@98.130.36.134 << 'ENDSSH' cd /home/ubuntu/nest-hello-world
+        npm install
+        npm start
+        ENDSSH
+ 
