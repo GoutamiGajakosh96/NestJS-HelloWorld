@@ -20,7 +20,7 @@ jobs:
     steps:
     - name: Copy Docker image to EC2
       run: |
-        scp imgae1.tar ubuntu@98.130.36.134:/home/ubuntu/nest-hello-world
+        scp -o StrictHostKeyChecking=no imgae1.tar ubuntu@98.130.36.134:/home/ubuntu/nest-hello-world
 
       env:
         KEY_PATH: ${{ secrets.KEY_PATH }}
