@@ -22,4 +22,4 @@ jobs:
       run: |
            ssh -i ~/.ssh/id_rsa ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} 'bash -s'  ../scripts/deploy_njsp.sh
       env: 
-        EC2_USER: ec2-user # or ubuntu, depending on your AMI
+        EC2_USER: ubuntu # or ubuntu, depending on your AMI
