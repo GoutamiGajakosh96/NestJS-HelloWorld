@@ -20,7 +20,8 @@ jobs:
     steps:
     - name: Add EC2 host key
       run: |
-        ssh-keyscan -H 98.130.36.134 >> ~/.ssh/id_rsa
+        ssh-keyscan -H 98.130.36.134 >> ~/home/ubuntu/.ssh/id_rsa
+
 
     - name: Copy Docker image to EC2
       run: |
