@@ -1,21 +1,38 @@
-name: Node.js CI/CD
+name: Build and Deploy to EC2
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ 'main' ]
 
 jobs:
   build:
-    runs-on: self-hosted
-    strategy:
-      matrix:
-        node-version: [18.x]
-        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+    runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v3
-      with:
-        node-version: ${{ matrix.node-version }}
-        cache: 'npm'
-    - run: npm ci
+    - name: Check out the repository
+      uses: actions/checkout@v2
+
+    - name: Build the Docker image
+      run: docker build -t imgae1 .
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+    - name: Copy Docker image to EC2
+      run: |
+        scp imgae1.tar ubuntu@98.130.36.134:/home/ubuntu/nest-hello-world
+
+      env:
+        KEY_PATH: ${{ secrets.KEY_PATH }}
+
+    - name: SSH and Load Docker image on EC2
+      run: |
+        ssh -i $KEY_PATH ubuntu@98.130.36.134 "docker load < /home/ubuntu/nest-hello-world/imgae1.tar"
+      env:
+        KEY_PATH: ${{ secrets.KEY_PATH }}
+
+    - name: Run the Docker container on EC2
+      run: |
+        ssh -i $KEY_PATH ubuntu@98.130.36.134 "docker run -d -p 3000:3000 imgae1"
+      env:
+        KEY_PATH: ${{ secrets.KEY_PATH }}
