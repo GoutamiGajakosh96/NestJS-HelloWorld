@@ -19,4 +19,4 @@ COPY . .
 EXPOSE 3000
 
 # Define the Docker image's behavior at runtime
-CMD ["npm", "run", "start:prod"]
+CMD ["npm", "run", "/dist/main.js"]
