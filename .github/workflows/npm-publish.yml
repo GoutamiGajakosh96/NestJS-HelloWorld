@@ -18,9 +18,13 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
+    - name: Add EC2 host key
+      run: |
+        ssh-keyscan -H 98.130.36.134 >> ~/.ssh/id_rsa
+
     - name: Copy Docker image to EC2
       run: |
-        scp -o  imgae1.tar ubuntu@98.130.36.134:/home/ubuntu/nest-hello-world
+        scp -i  imgae1.tar ubuntu@98.130.36.134:/home/ubuntu/nest-hello-world
 
       env:
         KEY_PATH: ${{ secrets.KEY_PATH }}
